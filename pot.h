@@ -8,5 +8,5 @@
 #include <xc.h>
 
 void init_ad();
-int get_pot_value();
+int get_ad_value();
 

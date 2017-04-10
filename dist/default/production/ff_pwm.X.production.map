@@ -17,6 +17,9 @@ Command:
   -L/Applications/microchip/xc16/v1.30/bin/bin/../../support/dsPIC33F/gld \
   build/default/production/main.o \
   build/default/production/stepper.o \
+  build/default/production/pot.o \
+  build/default/production/oc.o \
+  build/default/production/oled.o \
   --defsym=__MPLAB_BUILD=1 \
   -Tp24FJ64GA002.gld.00 \
   --stack=16 \
@@ -50,6 +53,8 @@ Archive member included because of file (symbol)
                               /Applications/microchip/xc16/v1.30/bin/bin/../../lib/liblega-pic30-elf.a(crt0_standard.o) (__data_init_standard)
 /Applications/microchip/xc16/v1.30/bin/bin/../../lib/liblega-pic30-elf.a(crt_start_mode_normal.Leo)
                               (__crt_start_mode_normal)
+/Applications/microchip/xc16/v1.30/bin/bin/../../lib/liblega-pic30-elf.a(delay32.Leo)
+                              build/default/production/oled.o (___delay32)
 /Applications/microchip/xc16/v1.30/bin/bin/../../lib/libm-elf.a(addsf3.eo)
                               build/default/production/stepper.o (___addsf3)
 /Applications/microchip/xc16/v1.30/bin/bin/../../lib/libm-elf.a(divsf3.eo)
@@ -79,10 +84,13 @@ Program Memory  [Origin = 0x200, Length = 0xa9fc]
 section                    address   length (PC units)   length (bytes) (dec)
 -------                    -------   -----------------   --------------------
 .text                        0x200               0x398           0x564  (1380)
-.text                        0x598               0x24e           0x375  (885)
-.dinit                       0x7e6                0x4c            0x72  (114)
+.const                       0x598                0xe2           0x153  (339)
+.text                        0x67a               0x434           0x64e  (1614)
+.dinit                       0xaae                0x52            0x7b  (123)
+.text                        0xb00                0x2c            0x42  (66)
+.init.delay32                0xb2c                0x1c            0x2a  (42)
 
-                 Total program memory used (bytes):          0x94b  (2379) 3%
+                 Total program memory used (bytes):          0xdec  (3564) 5%
 
 
 Ivt Memory  [Origin = 0x4, Length = 0xfc]
@@ -96,10 +104,10 @@ Data Memory  [Origin = 0x800, Length = 0x2000]
 
 section                    address      alignment gaps    total length  (dec)
 -------                    -------      --------------    -------------------
-.nbss                        0x800                   0            0x12  (18)
-.data                        0x812                   0            0x52  (82)
+.nbss                        0x800                   0            0x18  (24)
+.data                        0x818                   0            0x52  (82)
 
-                 Total data memory used (bytes):           0x64  (100) 1%
+                 Total data memory used (bytes):           0x6a  (106) 1%
 
 
 Dynamic Memory Usage
@@ -107,9 +115,9 @@ Dynamic Memory Usage
 region                     address                      maximum length  (dec)
 ------                     -------                      ---------------------
 heap                             0                                   0  (0)
-stack                        0x864                              0x1f9c  (8092)
+stack                        0x86a                              0x1f96  (8086)
 
-                 Maximum dynamic memory (bytes):         0x1f9c  (8092)
+                 Maximum dynamic memory (bytes):         0x1f96  (8086)
 
 
 External Symbols in Data Memory (by address):
@@ -120,17 +128,23 @@ External Symbols in Data Memory (by address):
                     0x080c                  _us_delay
                     0x080e                  _stepper_timer
                     0x0810                  _cur_stepper_output
-                    0x0812                  _stepper_outputs
-                    0x0852                  _duties
+                    0x0812                  _ain
+                    0x0814                  _last_mode
+                    0x0816                  _cur_mode
+                    0x0818                  _stepper_outputs
+                    0x0858                  _duties
 
 External Symbols in Data Memory (by name):
 
+                    0x0812                  _ain
                     0x0800                  _angle_per_step
+                    0x0816                  _cur_mode
                     0x0804                  _cur_rpm
                     0x0810                  _cur_stepper_output
-                    0x0852                  _duties
+                    0x0858                  _duties
+                    0x0814                  _last_mode
                     0x0808                  _last_rpm
-                    0x0812                  _stepper_outputs
+                    0x0818                  _stepper_outputs
                     0x080e                  _stepper_timer
                     0x080c                  _us_delay
 
@@ -154,23 +168,36 @@ External Symbols in Program Memory (by address):
                   0x0004f4                  __fbopReturnNaN
                   0x0004fa                  ___mulsf3
                   0x000562                  __fcompare
-                  0x000598                  _us_stepper_delay
-                  0x0005d2                  _InitStepper
-                  0x0005fa                  _UpdateStepper
-                  0x000634                  __T3Interrupt
-                  0x0006e4                  _InitPorts
-                  0x0006fc                  _InitPwm
-                  0x000752                  _main
+                  0x00067a                  _pulse_enable
+                  0x00068a                  _wait_busy
+                  0x0006c6                  _lcd_write_4
+                  0x0006ea                  _clear
+                  0x0006fa                  _home
+                  0x00070a                  _set_cursor
+                  0x000732                  _send
+                  0x00075e                  _write
+                  0x00076e                  _command
+                  0x00077e                  _init_oled
+                  0x00080a                  _print
+                  0x00085e                  _us_stepper_delay
+                  0x000892                  _init_stepper
+                  0x0008ba                  _set_rpm
+                  0x0008ea                  __T3Interrupt
+                  0x000996                  _init_peripherals
+                  0x0009ba                  _write_speed
+                  0x0009d8                  _update_if_needed
+                  0x000a00                  _main
+                  0x000a58                  _update_pwm
+                  0x000b00                  _init_ad
+                  0x000b18                  _get_ad_value
+                  0x000b2c                  ___delay32
 
 External Symbols in Program Memory (by name):
 
-                  0x0006e4                  _InitPorts
-                  0x0006fc                  _InitPwm
-                  0x0005d2                  _InitStepper
-                  0x0005fa                  _UpdateStepper
                   0x0002c8                  __DefaultInterrupt
-                  0x000634                  __T3Interrupt
+                  0x0008ea                  __T3Interrupt
                   0x0002d0                  ___addsf3
+                  0x000b2c                  ___delay32
                   0x00038a                  ___divsf3
                   0x00040e                  ___fixsfsi
                   0x0004fa                  ___mulsf3
@@ -187,8 +214,27 @@ External Symbols in Program Memory (by name):
                   0x0004ca                  __funpack2
                   0x00023c                  __psv_init
                   0x000200                  __resetPRI
-                  0x000752                  _main
-                  0x000598                  _us_stepper_delay
+                  0x0006ea                  _clear
+                  0x00076e                  _command
+                  0x000b18                  _get_ad_value
+                  0x0006fa                  _home
+                  0x000b00                  _init_ad
+                  0x00077e                  _init_oled
+                  0x000996                  _init_peripherals
+                  0x000892                  _init_stepper
+                  0x0006c6                  _lcd_write_4
+                  0x000a00                  _main
+                  0x00080a                  _print
+                  0x00067a                  _pulse_enable
+                  0x000732                  _send
+                  0x00070a                  _set_cursor
+                  0x0008ba                  _set_rpm
+                  0x0009d8                  _update_if_needed
+                  0x000a58                  _update_pwm
+                  0x00085e                  _us_stepper_delay
+                  0x00068a                  _wait_busy
+                  0x00075e                  _write
+                  0x0009ba                  _write_speed
 
 Memory Configuration
 
@@ -207,6 +253,9 @@ Linker script and memory map
 
 LOAD build/default/production/main.o
 LOAD build/default/production/stepper.o
+LOAD build/default/production/pot.o
+LOAD build/default/production/oc.o
+LOAD build/default/production/oled.o
                     0x0001                  __MPLAB_BUILD = 0x1
 LOAD pPIC24Fxxx
 LOAD /Applications/microchip/xc16/v1.30/bin/bin/../../lib/libfx-elf.a
@@ -291,31 +340,46 @@ __CONFIG1
 .comment
  *(.comment)
 
-.debug_info       0x000000       0x1439
+.debug_info       0x000000       0x2141
  *(.debug_info)
- .debug_info      0x000000        0xc7a build/default/production/main.o
- .debug_info      0x000c7a        0x7bf build/default/production/stepper.o
+ .debug_info      0x000000        0x73c build/default/production/main.o
+ .debug_info      0x00073c        0x866 build/default/production/stepper.o
+ .debug_info      0x000fa2        0x313 build/default/production/pot.o
+ .debug_info      0x0012b5        0x653 build/default/production/oc.o
+ .debug_info      0x001908        0x839 build/default/production/oled.o
  *(.gnu.linkonce.wi.*)
 
-.debug_abbrev     0x000000        0x30d
+.debug_abbrev     0x000000        0x5e7
  *(.debug_abbrev)
- .debug_abbrev    0x000000        0x17c build/default/production/main.o
- .debug_abbrev    0x00017c        0x191 build/default/production/stepper.o
+ .debug_abbrev    0x000000        0x140 build/default/production/main.o
+ .debug_abbrev    0x000140        0x191 build/default/production/stepper.o
+ .debug_abbrev    0x0002d1         0xcb build/default/production/pot.o
+ .debug_abbrev    0x00039c        0x13f build/default/production/oc.o
+ .debug_abbrev    0x0004db        0x10c build/default/production/oled.o
 
-.debug_line       0x000000        0x183
+.debug_line       0x000000        0x38f
  *(.debug_line)
- .debug_line      0x000000         0xcc build/default/production/main.o
- .debug_line      0x0000cc         0xb7 build/default/production/stepper.o
+ .debug_line      0x000000         0xc2 build/default/production/main.o
+ .debug_line      0x0000c2         0xb6 build/default/production/stepper.o
+ .debug_line      0x000178         0x92 build/default/production/pot.o
+ .debug_line      0x00020a         0x93 build/default/production/oc.o
+ .debug_line      0x00029d         0xf2 build/default/production/oled.o
 
-.debug_frame      0x000000         0xfe
+.debug_frame      0x000000        0x2d4
  *(.debug_frame)
- .debug_frame     0x000000         0x68 build/default/production/main.o
- .debug_frame     0x000068         0x96 build/default/production/stepper.o
+ .debug_frame     0x000000         0x84 build/default/production/main.o
+ .debug_frame     0x000084         0x8c build/default/production/stepper.o
+ .debug_frame     0x000110         0x4c build/default/production/pot.o
+ .debug_frame     0x00015c         0x30 build/default/production/oc.o
+ .debug_frame     0x00018c        0x148 build/default/production/oled.o
 
-.debug_str        0x000000         0xc5
+.debug_str        0x000000        0x119
  *(.debug_str)
- .debug_str       0x000000         0x4e build/default/production/main.o
- .debug_str       0x00004e         0x77 build/default/production/stepper.o
+ .debug_str       0x000000         0x30 build/default/production/main.o
+ .debug_str       0x000030         0x80 build/default/production/stepper.o
+ .debug_str       0x0000b0         0x15 build/default/production/pot.o
+ .debug_str       0x0000c5         0x27 build/default/production/oc.o
+ .debug_str       0x0000ec         0x2d build/default/production/oled.o
 
 .debug_loc
  *(.debug_loc)
@@ -324,22 +388,34 @@ __CONFIG1
  *(.debug_macinfo)
 
 .debug_pubnames
-                  0x000000        0x110
+                  0x000000        0x238
  *(.debug_pubnames)
  .debug_pubnames
-                  0x000000         0x40 build/default/production/main.o
+                  0x000000         0x78 build/default/production/main.o
  .debug_pubnames
-                  0x000040         0xd0 build/default/production/stepper.o
+                  0x000078         0xcb build/default/production/stepper.o
+ .debug_pubnames
+                  0x000143         0x2f build/default/production/pot.o
+ .debug_pubnames
+                  0x000172         0x2c build/default/production/oc.o
+ .debug_pubnames
+                  0x00019e         0x9a build/default/production/oled.o
 
 .debug_ranges
  *(.debug_ranges)
 
-.debug_aranges    0x000000         0x30
+.debug_aranges    0x000000         0x78
  *(.debug_aranges)
  .debug_aranges
                   0x000000         0x18 build/default/production/main.o
  .debug_aranges
                   0x000018         0x18 build/default/production/stepper.o
+ .debug_aranges
+                  0x000030         0x18 build/default/production/pot.o
+ .debug_aranges
+                  0x000048         0x18 build/default/production/oc.o
+ .debug_aranges
+                  0x000060         0x18 build/default/production/oled.o
                     0x0000                  WREG0 = 0x0
                     0x0000                  _WREG0 = 0x0
                     0x0002                  WREG1 = 0x2
@@ -926,44 +1002,58 @@ LOAD default_isr
 LOAD data_init
 
 .debug_pubtypes
-                  0x000030        0x18e
+                  0x000078        0x240
  .debug_pubtypes
-                  0x000030        0x106 build/default/production/main.o
+                  0x000078         0x6d build/default/production/main.o
  .debug_pubtypes
-                  0x000136         0x88 build/default/production/stepper.o
+                  0x0000e5         0xa5 build/default/production/stepper.o
+ .debug_pubtypes
+                  0x00018a         0x35 build/default/production/pot.o
+ .debug_pubtypes
+                  0x0001bf         0x8c build/default/production/oc.o
+ .debug_pubtypes
+                  0x00024b         0x6d build/default/production/oled.o
 
 __c30_signature
-                  0x0001be         0x54
+                  0x0002b8         0x6c
  __c30_signature
-                  0x0001be          0x6 build/default/production/main.o
+                  0x0002b8          0x6 build/default/production/main.o
  __c30_signature
-                  0x0001c4          0x6 build/default/production/stepper.o
+                  0x0002be          0x6 build/default/production/stepper.o
  __c30_signature
-                  0x0001ca          0x6 /Applications/microchip/xc16/v1.30/bin/bin/../../lib/liblega-pic30-elf.a(crt0_standard.o)
+                  0x0002c4          0x6 build/default/production/pot.o
  __c30_signature
-                  0x0001d0          0x6 /Applications/microchip/xc16/v1.30/bin/bin/../../lib/liblega-pic30-elf.a(data_init_standard.o)
+                  0x0002ca          0x6 build/default/production/oc.o
  __c30_signature
-                  0x0001d6          0x6 /Applications/microchip/xc16/v1.30/bin/bin/../../lib/libm-elf.a(addsf3.eo)
+                  0x0002d0          0x6 build/default/production/oled.o
  __c30_signature
-                  0x0001dc          0x6 /Applications/microchip/xc16/v1.30/bin/bin/../../lib/libm-elf.a(divsf3.eo)
+                  0x0002d6          0x6 /Applications/microchip/xc16/v1.30/bin/bin/../../lib/liblega-pic30-elf.a(crt0_standard.o)
  __c30_signature
-                  0x0001e2          0x6 /Applications/microchip/xc16/v1.30/bin/bin/../../lib/libm-elf.a(fixsfsi.eo)
+                  0x0002dc          0x6 /Applications/microchip/xc16/v1.30/bin/bin/../../lib/liblega-pic30-elf.a(data_init_standard.o)
  __c30_signature
-                  0x0001e8          0x6 /Applications/microchip/xc16/v1.30/bin/bin/../../lib/libm-elf.a(fne.eo)
+                  0x0002e2          0x6 /Applications/microchip/xc16/v1.30/bin/bin/../../lib/liblega-pic30-elf.a(delay32.Leo)
  __c30_signature
-                  0x0001ee          0x6 /Applications/microchip/xc16/v1.30/bin/bin/../../lib/libm-elf.a(fpack.eo)
+                  0x0002e8          0x6 /Applications/microchip/xc16/v1.30/bin/bin/../../lib/libm-elf.a(addsf3.eo)
  __c30_signature
-                  0x0001f4          0x6 /Applications/microchip/xc16/v1.30/bin/bin/../../lib/libm-elf.a(funpack.eo)
+                  0x0002ee          0x6 /Applications/microchip/xc16/v1.30/bin/bin/../../lib/libm-elf.a(divsf3.eo)
  __c30_signature
-                  0x0001fa          0x6 /Applications/microchip/xc16/v1.30/bin/bin/../../lib/libm-elf.a(funpack2.eo)
+                  0x0002f4          0x6 /Applications/microchip/xc16/v1.30/bin/bin/../../lib/libm-elf.a(fixsfsi.eo)
  __c30_signature
-                  0x000200          0x6 /Applications/microchip/xc16/v1.30/bin/bin/../../lib/libm-elf.a(futil.eo)
+                  0x0002fa          0x6 /Applications/microchip/xc16/v1.30/bin/bin/../../lib/libm-elf.a(fne.eo)
  __c30_signature
-                  0x000206          0x6 /Applications/microchip/xc16/v1.30/bin/bin/../../lib/libm-elf.a(mulsf3.eo)
+                  0x000300          0x6 /Applications/microchip/xc16/v1.30/bin/bin/../../lib/libm-elf.a(fpack.eo)
  __c30_signature
-                  0x00020c          0x6 /Applications/microchip/xc16/v1.30/bin/bin/../../lib/libm-elf.a(fcompare.eo)
+                  0x000306          0x6 /Applications/microchip/xc16/v1.30/bin/bin/../../lib/libm-elf.a(funpack.eo)
+ __c30_signature
+                  0x00030c          0x6 /Applications/microchip/xc16/v1.30/bin/bin/../../lib/libm-elf.a(funpack2.eo)
+ __c30_signature
+                  0x000312          0x6 /Applications/microchip/xc16/v1.30/bin/bin/../../lib/libm-elf.a(futil.eo)
+ __c30_signature
+                  0x000318          0x6 /Applications/microchip/xc16/v1.30/bin/bin/../../lib/libm-elf.a(mulsf3.eo)
+ __c30_signature
+                  0x00031e          0x6 /Applications/microchip/xc16/v1.30/bin/bin/../../lib/libm-elf.a(fcompare.eo)
 
-.nbss               0x0800         0x12
+.nbss               0x0800         0x18
  .nbss              0x0800         0x12 build/default/production/stepper.o
                     0x0800                  _angle_per_step
                     0x0804                  _cur_rpm
@@ -971,12 +1061,16 @@ __c30_signature
                     0x080c                  _us_delay
                     0x080e                  _stepper_timer
                     0x0810                  _cur_stepper_output
+ .nbss              0x0812          0x6 build/default/production/main.o
+                    0x0812                  _ain
+                    0x0814                  _last_mode
+                    0x0816                  _cur_mode
 
-.data               0x0812         0x52
- .data              0x0812         0x40 build/default/production/stepper.o
-                    0x0812                  _stepper_outputs
- .data              0x0852         0x12 build/default/production/main.o
-                    0x0852                  _duties
+.data               0x0818         0x52
+ .data              0x0818         0x40 build/default/production/stepper.o
+                    0x0818                  _stepper_outputs
+ .data              0x0858         0x12 build/default/production/oc.o
+                    0x0858                  _duties
 
 .config_JTAGEN    0x00abfe          0x2
  .config_JTAGEN
@@ -990,16 +1084,44 @@ __c30_signature
  .ivt._T3Interrupt
                   0x000024          0x2 build/default/production/stepper.o
 
-.text             0x000598        0x24e
- .text            0x000598        0x14c build/default/production/stepper.o
-                  0x000598                  _us_stepper_delay
-                  0x0005d2                  _InitStepper
-                  0x0005fa                  _UpdateStepper
-                  0x000634                  __T3Interrupt
- .text            0x0006e4        0x102 build/default/production/main.o
-                  0x0006e4                  _InitPorts
-                  0x0006fc                  _InitPwm
-                  0x000752                  _main
+.const              0x8598         0xe2 load address 0x000598  
+ .const             0x8598         0xc2 build/default/production/oled.o
+ .const             0x865a         0x20 build/default/production/main.o
 
-.dinit            0x0007e6         0x4c
- .dinit           0x0007e6         0x4c data_init
+.text             0x00067a        0x434
+ .text            0x00067a        0x1e4 build/default/production/oled.o
+                  0x00067a                  _pulse_enable
+                  0x00068a                  _wait_busy
+                  0x0006c6                  _lcd_write_4
+                  0x0006ea                  _clear
+                  0x0006fa                  _home
+                  0x00070a                  _set_cursor
+                  0x000732                  _send
+                  0x00075e                  _write
+                  0x00076e                  _command
+                  0x00077e                  _init_oled
+                  0x00080a                  _print
+ .text            0x00085e        0x138 build/default/production/stepper.o
+                  0x00085e                  _us_stepper_delay
+                  0x000892                  _init_stepper
+                  0x0008ba                  _set_rpm
+                  0x0008ea                  __T3Interrupt
+ .text            0x000996         0xc2 build/default/production/main.o
+                  0x000996                  _init_peripherals
+                  0x0009ba                  _write_speed
+                  0x0009d8                  _update_if_needed
+                  0x000a00                  _main
+ .text            0x000a58         0x56 build/default/production/oc.o
+                  0x000a58                  _update_pwm
+
+.dinit            0x000aae         0x52
+ .dinit           0x000aae         0x52 data_init
+
+.text             0x000b00         0x2c
+ .text            0x000b00         0x2c build/default/production/pot.o
+                  0x000b00                  _init_ad
+                  0x000b18                  _get_ad_value
+
+.init.delay32     0x000b2c         0x1c
+ .init.delay32    0x000b2c         0x1c /Applications/microchip/xc16/v1.30/bin/bin/../../lib/liblega-pic30-elf.a(delay32.Leo)
+                  0x000b2c                  ___delay32

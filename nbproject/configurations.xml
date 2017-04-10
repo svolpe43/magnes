@@ -17,6 +17,10 @@
       <itemPath>stepper.h</itemPath>
       <itemPath>pot.h</itemPath>
       <itemPath>pot.c</itemPath>
+      <itemPath>oc.c</itemPath>
+      <itemPath>oc.h</itemPath>
+      <itemPath>oled.c</itemPath>
+      <itemPath>oled.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
