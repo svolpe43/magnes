@@ -1,3 +1,6 @@
 build/default/production/main.o:  \
 main.c  \
-stepper.h 
+stepper.h  \
+pot.h  \
+oled.h  \
+oc.h 

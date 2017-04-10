@@ -3,7 +3,7 @@
  * File:   main.c
  * Author: shawn.volpe
  *
- * Created on February 14, 2017, 12:03 AM
+ * Created on February 14, 2117, 12:13 AM
  */
 
 // CONFIG2
@@ -31,6 +31,9 @@
 #include <stdlib.h>
 #include <xc.h>
 #include "stepper.h"
+#include "pot.h"
+#include "oled.h"
+#include "oc.h"
 
 // configure delay functions
 #define FCY   4000000L // Fosc - osc after and prescalars of PLL, Fcy = Focy/2 Fosc is 8Mhz
@@ -39,108 +42,88 @@
 #define DELAY_MS(ms)  __delay32(FCY_MS * ((unsigned long) ms));   //__delay32 is provided by the compiler, delay some # of milliseconds
 #define DELAY_US(us)  __delay32(FCY_US * ((unsigned long) us));   //delay some number of microseconds
 
-// 3 different periods with 50% duty {OCRS, PR}
-unsigned int duties[3][3] = {
-    {0x80E8, 0xFFFF}, // 60 Hz
-    {0x3E80, 0x7FFF}, // 122 Hz
-    {0x07FD, 0x0FFF}  // 975 kHz
-};
+// tris
+// 1 - Input
+// 0 - Output
 
-// Initialize ports
-/*
-    A0 - 
-    A1 - 
-    A2 - 
-    A3 - 
-    B0 - 
-    B1 - 
-    B2 - 
-    B3 - 
-    B4 - 
-    B5 - 
-    B6 - 
-    B7 - 
-    B8 - 
-    B9 - 
-    B10 - 
-    B11 - 
-    B12 - 
-    B13 - 
-    B14 - 
-    B15 - 
-*/
-void InitPorts(void) {
-    AD1PCFG = 0xFFFF;
-    
+#define LED_1           LATBbits.LATB11
+#define LED_2           LATBbits.LATB10
+#define LED_3           LATBbits.LATB9
+
+int ain;
+int last_mode;
+int cur_mode;
+
+void init_peripherals() {
+
     TRISA = 0;
     TRISB = 0;
+    
+    // analog - pin 2 - AN0
+    TRISBbits.TRISB2 = 1;
+    AD1PCFG = 0xffef; //0b0000000000010000;
+    
+    // output capture - pin 5 - OC1
+    RPOR3bits.RP6R = 18;
 
-    RPOR3bits.RP6R = 18; //OC to RP6
+    // pot input
+    init_ad();
+    init_stepper();
+    init_oled();
+    update_pwm(0);
 }
 
-void InitPwm(int duty_index){
-    
-    //***** OC1 *****//
-    OC1CONbits.OCM      = 0;        // Output compare channel is disabled
-    
-    OC1R                = duties[duty_index][0];
-    OC1RS               = duties[duty_index][0];
-    
-    OC1CONbits.OCSIDL   = 0;        // Output capture will continue to operate in CPU Idle mode
-    OC1CONbits.OCFLT    = 0;        // No PWM Fault condition has occurred (this bit is only used when OCM<2:0> = 111)
-    OC1CONbits.OCTSEL   = 0;        // Timer2 is the clock source for output Compare
-    OC1CONbits.OCM      = 0x6;      // PWM mode on OC, Fault pin disabled
-    
-    //***** Timer2 *****//
-    PR2                 = duties[duty_index][1];
-    T2CON               = 0;        // Configure timer 2 settings
-    IFS0bits.T2IF       = 0;        // Clear Output Compare interrupt flag
-    IEC0bits.T2IE       = 0;        // Enable Output Compare interrupts
-    T2CONbits.TON       = 1;        // Start Timer2 with assumed settings
-    TMR2                = 0;        // Reset counter to 0
+void write_speed(char *value) {
+    clear();
+    set_cursor(5, 0);
+    print(value);
+    set_cursor(0, 1);
+    print("Times Real Speed");
+}
+
+void update_if_needed(float rpm, int mode, char *value){
+    cur_mode = mode;
+    if (last_mode != cur_mode) {
+        write_speed(value);
+        update_pwm(mode);
+        set_rpm(rpm);
+        last_mode = cur_mode;
+    }
 }
 
 int main(void){
     
-    InitPorts();
-    InitPwm(1);
-    InitStepper();
+    init_peripherals();
     
-    LATBbits.LATB7 = 0;
-    LATBbits.LATB8 = 1;
-    LATBbits.LATB9 = 0;
+    LED_1 = 1;
+    LED_2 = 1;
+    LED_3 = 1;
     
-    int hold = 0;
+    last_mode = 0;
+    cur_mode = 0;
 
     while(1){
+ 
+        ain = get_ad_value();
         
-        if(PORTAbits.RA0 == 0 && PORTAbits.RA1 == 0 && PORTBbits.RB0 == 0){
-            hold = 0;
-        }
-        
-        if(hold == 0){
-            if (PORTAbits.RA0 == 1) {
-                hold = 1;
-                LATBbits.LATB7 = 1;
-                LATBbits.LATB8 = 0;
-                LATBbits.LATB9 = 0;
-                InitPwm(0);
-                UpdateStepper(20.00); // 86,400 X faster than actual speed
-            } else if (PORTAbits.RA1 == 1) {
-                hold = 1;
-                LATBbits.LATB7 = 0;
-                LATBbits.LATB8 = 1;
-                LATBbits.LATB9 = 0;
-                InitPwm(1);
-                UpdateStepper(0.694); // 1,000 X faster than actual speed
-            } else if (PORTBbits.RB0 == 1) {
-                hold = 1;
-                LATBbits.LATB7 = 0;
-                LATBbits.LATB8 = 0;
-                LATBbits.LATB9 = 1;
-                InitPwm(2);
-                UpdateStepper(0.000694); // figure out actual speed
-            }
+        if (ain > 666) {
+            LED_1 = 1;
+            LED_2 = 0;
+            LED_3 = 0;
+            update_if_needed(60.00, 0, "86,000");
+            
+        } else if (ain > 333) {
+            LED_1 = 0;
+            LED_2 = 1;
+            LED_3 = 0;
+            update_if_needed(20.00, 1, "1,111");
+            
+        } else {
+            LED_1 = 0;
+            LED_2 = 0;
+            LED_3 = 1;
+            update_if_needed(1.00, 2, "1");
+            
         }
     }
 }

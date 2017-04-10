@@ -17,7 +17,7 @@ void init_ad(){
     AD1CON1bits.ADON = 1; // turn on the ADC;
 }
 
-int get_pot_value(){
+int get_ad_value(){
     AD1CON1bits.SAMP = 1;       // start sampling, automatic conversion will follow;
     while (!AD1CON1bits.DONE);  // wait to complete the conversion
     return ADC1BUF0;            // read the conversion result
