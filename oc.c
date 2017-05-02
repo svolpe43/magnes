@@ -1,14 +1,6 @@
-/* 
- * File:   pot.h
- * Author: shawn.volpe
- *
- * Created on April 4, 2017, 11:02 AM
- */
 
-#include <xc.h>
-#include "oc.h"
 
-unsigned int duties[3][3] = {
+duties[3][3] = {
     {0x80E8, 0xFFFF}, // 60 Hz
     {0x3E80, 0x7FFF}, // 122 Hz
     {0x07FD, 0x0FFF}  // 975 kHz

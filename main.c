@@ -63,7 +63,7 @@ void init_peripherals() {
     TRISBbits.TRISB2 = 1;
     AD1PCFG = 0xffef; //0b0000000000010000;
     
-    // output capture - pin 5 - OC1
+    // output capture - RP6 - OC1
     RPOR3bits.RP6R = 18;
 
     // pot input

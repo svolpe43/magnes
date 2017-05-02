@@ -3,9 +3,10 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/Users/shawn.volpe/MPLABXProjects/ff_pwm.X/main.c</file>
-            <file>file:/Users/shawn.volpe/MPLABXProjects/ff_pwm.X/oled.h</file>
-            <file>file:/Users/shawn.volpe/MPLABXProjects/ff_pwm.X/oled.c</file>
+            <file>file:/Users/shawn.volpe/MPLABXProjects/main.X/stepper.h</file>
+            <file>file:/Users/shawn.volpe/MPLABXProjects/main.X/oled.c</file>
+            <file>file:/Users/shawn.volpe/MPLABXProjects/main.X/main.c</file>
+            <file>file:/Users/shawn.volpe/MPLABXProjects/main.X/oled.h</file>
         </group>
     </open-files>
 </project-private>
