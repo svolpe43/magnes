@@ -7,7 +7,7 @@
  */
 
 // CONFIG2
-#pragma config POSCMOD = HS             // Primary Oscillator Select (Primary oscillator disabled)
+#pragma config POSCMOD = NONE           // Primary Oscillator Select (Primary oscillator disabled)
 #pragma config I2C1SEL = SEC            // I2C1 Pin Location Select (Use default SCL1/SDA1 pins)
 #pragma config IOL1WAY = ON             // IOLOCK Protection (Once IOLOCK is set, cannot be changed)
 #pragma config OSCIOFNC = ON            // Primary Oscillator Output Function (OSC2/CLKO/RC15 functions as port I/O (RC15))
@@ -46,9 +46,7 @@
 // 1 - Input
 // 0 - Output
 
-#define LED_1           LATBbits.LATB11
-#define LED_2           LATBbits.LATB10
-#define LED_3           LATBbits.LATB9
+#define LED           LATBbits.LATB5
 
 int ain;
 int last_mode;
@@ -59,18 +57,17 @@ void init_peripherals() {
     TRISA = 0;
     TRISB = 0;
     
-    // analog - pin 2 - AN0
+    // pot input - analog / pin 4 / AN4
     TRISBbits.TRISB2 = 1;
     AD1PCFG = 0xffef; //0b0000000000010000;
-    
-    // output capture - pin 5 - OC1
-    RPOR3bits.RP6R = 18;
-
-    // pot input
     init_ad();
-    init_stepper();
+    
+    // output capture - RP3 / pin 6 / OC1
+    RPOR1bits.RP3R = 18;
+    
+    //update_pwm(0);
     init_oled();
-    update_pwm(0);
+    init_stepper();
 }
 
 void write_speed(char *value) {
@@ -95,35 +92,28 @@ int main(void){
     
     init_peripherals();
     
-    LED_1 = 1;
-    LED_2 = 1;
-    LED_3 = 1;
+    LATBbits.LATB1 = 1;
+    
+    LED = 1;
     
     last_mode = 0;
     cur_mode = 0;
 
     while(1){
- 
+       
         ain = get_ad_value();
         
         if (ain > 666) {
-            LED_1 = 1;
-            LED_2 = 0;
-            LED_3 = 0;
-            update_if_needed(60.00, 0, "86,000");
+            LED = 1;
+            update_if_needed(120.00, 0, "86,000");
             
         } else if (ain > 333) {
-            LED_1 = 0;
-            LED_2 = 1;
-            LED_3 = 0;
+            LED = 0;
             update_if_needed(20.00, 1, "1,111");
             
         } else {
-            LED_1 = 0;
-            LED_2 = 0;
-            LED_3 = 1;
-            update_if_needed(1.00, 2, "1");
-            
+            LED = 0;
+            update_if_needed(1.00, 2, "1");   
         }
     }
 }

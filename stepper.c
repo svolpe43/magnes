@@ -75,6 +75,11 @@ void __attribute__((__interrupt__, no_auto_psv)) _T3Interrupt( void ){
         stepper_b = stepper_outputs[cur_stepper_output][1];
         stepper_c = stepper_outputs[cur_stepper_output][2];
         stepper_d = stepper_outputs[cur_stepper_output][3];
+        
+        stepper_aa = stepper_outputs[cur_stepper_output][0];
+        stepper_bb = stepper_outputs[cur_stepper_output][1];
+        stepper_cc = stepper_outputs[cur_stepper_output][2];
+        stepper_dd = stepper_outputs[cur_stepper_output][3];
     }
     
     IFS0bits.T3IF = 0;

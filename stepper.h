@@ -8,10 +8,15 @@
 #include <xc.h>
 
 // output pins
-#define stepper_a       LATBbits.LATB4
-#define stepper_b       LATAbits.LATA4
-#define stepper_c       LATBbits.LATB8
-#define stepper_d       LATBbits.LATB7
+#define stepper_a       LATAbits.LATA0
+#define stepper_b       LATAbits.LATA1
+#define stepper_c       LATBbits.LATB0
+#define stepper_d       LATBbits.LATB1
+
+#define stepper_aa       LATAbits.LATA2
+#define stepper_bb       LATAbits.LATA3
+#define stepper_cc       LATBbits.LATB4
+#define stepper_dd       LATAbits.LATA4
 
 extern int us_stepper_delay(float rpm);
 extern void init_stepper();

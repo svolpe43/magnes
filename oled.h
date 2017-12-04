@@ -36,13 +36,13 @@
 #define LCD_MOVERIGHT 0x04
 #define LCD_MOVELEFT 0x00
 
-#define LCD_RS          LATBbits.LATB0
-#define LCD_RW          LATBbits.LATB1
-#define LCD_EN          LATBbits.LATB3
+#define LCD_EN          LATBbits.LATB8
+#define LCD_RW          LATBbits.LATB7
+#define LCD_RS          LATBbits.LATB6
 
-#define LCD_TRIS_RS     TRISBbits.TRISB0
-#define LCD_TRIS_RW     TRISBbits.TRISB1
-#define LCD_TRIS_EN     TRISBbits.TRISB3
+#define LCD_TRIS_EN     TRISBbits.TRISB8
+#define LCD_TRIS_RW     TRISBbits.TRISB7
+#define LCD_TRIS_RS     TRISBbits.TRISB6
 
 #define LCD_BUSY        PORTBbits.RB15;
 #define LCD_PORT        PORTB
