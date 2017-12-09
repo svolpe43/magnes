@@ -20,5 +20,7 @@
 
 extern int us_stepper_delay(float rpm);
 extern void init_stepper();
+extern void move_deg(float rpm, float degree);
 extern void set_rpm(float rpm);
+extern void stop_motor();
 extern void __attribute__((__interrupt__, no_auto_psv)) _T3Interrupt( void );
