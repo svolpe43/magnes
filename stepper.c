@@ -89,6 +89,8 @@ void __attribute__((__interrupt__, no_auto_psv)) _T3Interrupt( void ){
             //wrap around
             if (cur_stepper_output == 4){//8) {
                 cur_stepper_output = 0;
+            }else if(cur_stepper_output == 0){
+                cur_stepper_output = 3;
             }
 
             stepper_a = stepper_outputs[cur_stepper_output][0];
