@@ -33,7 +33,7 @@
 #include "stepper.h"
 #include "pot.h"
 #include "oled.h"
-#include "oc.h"
+#include "rot.h"
 
 // configure delay functions
 #define FCY   4000000L // Fosc - osc after and prescalars of PLL, Fcy = Focy/2 Fosc is 8Mhz
@@ -48,16 +48,31 @@
 
 #define LED           LATBbits.LATB5
 
-int ain;
 int last_mode;
 int cur_mode;
+
+char* times[24] = {
+    "1200 AM", "100 AM", "200 AM", "300 AM", "400 AM", "500 AM",
+    "600 AM", "700 AM", "800 AM", "900 AM", "1000 AM", "1100 AM",
+    "1200 PM", "100 PM", "200 PM", "300 PM", "400 PM", "500 PM",
+    "600 PM", "700 PM", "800 PM", "900 PM", "1000 PM", "1100 PM"
+};
+
+int degrees[24] = {
+    0, 14.4, 28.8, 43.2, 57.6, 72,
+    86.4, 100.8, 115.2, 129.6, 144, 158.4,
+    172.8, 187.2, 201.6, 216, 230.4, 244.8,
+    259.2, 273.6, 288, 302.4, 316.8, 331.2, 345.6
+};
+
+unsigned int timeout_threshold = 10000;
 
 void init_peripherals() {
 
     TRISA = 0;
     TRISB = 0;
     
-    // pot input - analog / pin 4 / AN4
+    // pot input - analog / Pin AN4
     TRISBbits.TRISB2 = 1;
     AD1PCFG = 0xffef; //0b0000000000010000;
     init_ad();
@@ -65,55 +80,103 @@ void init_peripherals() {
     // output capture - RP3 / pin 6 / OC1
     RPOR1bits.RP3R = 18;
     
-    //update_pwm(0);
     init_oled();
     init_stepper();
+    init_rot();
 }
 
-void write_speed(char *value) {
+void splash_screen(){
     clear();
     set_cursor(5, 0);
-    print(value);
-    set_cursor(0, 1);
-    print("Times Real Speed");
+    print("Welcome");
+    DELAY_MS(1500);
 }
 
-void update_if_needed(float rpm, int mode, char *value){
-    cur_mode = mode;
-    if (last_mode != cur_mode) {
-        write_speed(value);
-        update_pwm(mode);
-        set_rpm(rpm);
-        last_mode = cur_mode;
-    }
+void screen_write(char *value) {
+    clear();
+    set_cursor(0, 0);
+    print(value);
+}
+
+void write_state(char *time, char *state){
+    clear();
+    set_cursor(5, 0);
+    print(time);
+    set_cursor(5, 1);
+    print(state);
 }
 
 int main(void){
     
+    /*
+     7  - yellow - pot
+     18 - yellow - rot A
+     21 - green - rot B
+     22 - blue - rot button
+    */
+
     init_peripherals();
     
-    LATBbits.LATB1 = 1;
-    
-    LED = 1;
-    
-    last_mode = 0;
-    cur_mode = 0;
+    splash_screen();
+
+     while(1){
+        unsigned char rot_direction = get_rot_value();
+
+        if(rot_direction == 0x1){
+            write_state(times[0], "Right");
+        }else if(rot_direction == 0x2){
+            write_state(times[1], "Left");
+        }
+     }
+    /*
+
+    float current_degree = 0.0;
+    int last_time = 0;
+    int timeout = 0;
 
     while(1){
-       
-        ain = get_ad_value();
-        
-        if (ain > 666) {
-            LED = 1;
-            update_if_needed(120.00, 0, "86,000");
-            
-        } else if (ain > 333) {
-            LED = 0;
-            update_if_needed(20.00, 1, "1,111");
-            
-        } else {
-            LED = 0;
-            update_if_needed(1.00, 2, "1");   
+
+        int time = get_ad_value() / 43;
+
+        if(time != last_time){
+            write_state(times[time], "Choosing");
+            timeout = 0;
+            last_time = time;
+        }else{
+            timeout++;
+        }
+
+        if(timeout > timeout_threshold){
+
+            write_state(times[time], "Moving");
+
+            float delta_deg = degrees[time] - current_degree;
+
+            move_deg(2, delta_deg);
+
+            write_state(times[time], "Finished");
+
+            timeout = 0;
+            current_degree += delta_deg;
         }
     }
+    */
 }
+
+/*
+    if(get_rot_but_value()){
+        LATBbits.LATB2 = 1;
+    }else{
+        LATBbits.LATB2 = 0;
+    }
+
+    unsigned char rot_direction = get_rot_value();
+
+    if(rot_direction == 0x1){
+        LATBbits.LATB2 = 1;
+        LATBbits.LATB3 = 0;
+    }else if(rot_direction == 0x2){
+        LATBbits.LATB2 = 0;
+        LATBbits.LATB3 = 1;
+    }
+*/
