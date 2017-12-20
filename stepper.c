@@ -30,10 +30,13 @@ int us_stepper_delay(float rpm){
 }
 
 void init_stepper(){
-    
+
+    //pulley ratio
+    float pulley_ratio = 30.25 / 66.0;
+
     stepper_timer = 0;
     cur_stepper_output = 0;
-    angle_per_step = 0.35 * 2;
+    angle_per_step = 0.70 * pulley_ratio;
     us_delay = us_stepper_delay(5.00);
     stop_motor();
     
@@ -96,7 +99,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _T3Interrupt( void ){
             stepper_c = stepper_outputs[cur_stepper_output][2];
             stepper_d = stepper_outputs[cur_stepper_output][3];
         
-            degrees_moved += angle_per_step;// / 2.0;
+            degrees_moved += angle_per_step;;
         }
     }
     IFS0bits.T3IF = 0;
