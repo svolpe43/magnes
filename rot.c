@@ -8,6 +8,11 @@
 #include "rot.h"
 #include <xc.h>
 
+#define FCY   4000000L // Fosc - osc after and prescalars of PLL, Fcy = Focy/2 Fosc is 8Mhz
+#define FCY_MS ((unsigned long)(FCY / 1000))        //instruction cycles per millisecond
+
+#define DELAY_MS(ms)  __delay32(FCY_MS * ((unsigned long) ms));
+
 unsigned char last_state = 0b0011;
 
 void init_rot(){
@@ -42,6 +47,12 @@ unsigned char get_rot_value(){
 }
 
 unsigned char get_rot_but_value(){
-    return PORTBbits.RB11;
+    if(PORTBbits.RB11){
+        DELAY_MS(100);
+        if(PORTBbits.RB11){
+            return 0x1;
+        }
+    }
+    return 0x0;
 }
 

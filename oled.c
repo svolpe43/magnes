@@ -147,7 +147,7 @@ void init_oled(void){
 
 void print(char *text){
     
-    char *letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ,";
+    char *letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ,:-";
     int datas[] = {
         0b01000001, // A
         0b01000010, // B
@@ -213,6 +213,8 @@ void print(char *text){
         0b00111001, // 9
         0b10100000, //' '
         0b00101100, //','
+        0b00111010,  //':'
+        0b00101101  //'-'
     };
     
     int i = 0;
